@@ -1,4 +1,4 @@
-client src/client.c -lncurses
+wrapper src/wrapper.c
 server src/server.c
-include/client.h
+include/wrapper.h
 include/server.h
