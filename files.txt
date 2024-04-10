@@ -1,0 +1,4 @@
+client src/client.c -lncurses
+server src/server.c
+include/client.h
+include/server.h
