@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +15,6 @@
 #define MAX_PORT_LENGTH 6
 #define BASE 10
 #define MAX_PORT 65535
-#include <stdint.h>
 
 void write_ack_to_socket(int sockfd, const char *ack_message);
 
@@ -45,8 +45,9 @@ void write_ack_to_socket(int sockfd, const char *ack_message) {
 int main(void) {
   pid_t pid;
   int pipefd[2];
-  int server_started = 0; // Add a flag to track if the server has started
+  int server_started = 0;
   char command[3];
+
   // Create a pipe for IPC
   // NOLINTNEXTLINE(android-cloexec-pipe)
   if (pipe(pipefd) == -1) {
@@ -206,9 +207,7 @@ int main(void) {
           perror("Error receiving uint16 for command length from client");
           exit(EXIT_FAILURE);
         }
-        command_length_uint16 =
-            ntohs(command_length_uint16); // Convert from network byte order to
-                                          // host byte order
+        command_length_uint16 = ntohs(command_length_uint16);
 
         n = recv(connfd, buffer, command_length_uint16, 0);
         if (n <= 0) {
@@ -228,9 +227,8 @@ int main(void) {
             if (server_pid != -1) {
               kill(server_pid,
                    SIGTERM); // Send a SIGTERM signal to the server process
-              waitpid(server_pid, NULL,
-                      0);      // Wait for the server process to terminate
-              server_pid = -1; // Reset the server's PID
+              waitpid(server_pid, NULL, 0);
+              server_pid = -1;
             }
             server_started = 0; // Update the flag
           } else {
@@ -259,8 +257,7 @@ int main(void) {
             printf("Starting the server\n");
 
             execl("./server", "server", ip, new_port_str, (char *)NULL);
-            perror("Exec failed"); // This line should not be reached if exec
-                                   // succeeds
+            perror("Exec failed");
             exit(EXIT_FAILURE);
           } else {
             server_pid = pid;

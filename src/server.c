@@ -35,45 +35,6 @@ void send_user_list(int client_socket);
 void send_message_to_client(int client_socket, uint8_t protocol_version,
                             const char *message);
 
-// void          send_uint8_to_client(int client_socket, uint8_t value);
-// void          send_uint16_to_client(int client_socket, uint16_t value);
-// ssize_t       send_string_to_client(int client_socket, const char *str);
-
-// void send_uint8_to_client(int client_socket, uint8_t value)
-//{
-//     uint8_t network_order = value;
-//     send(client_socket, &network_order, sizeof(uint8_t), 0);
-// }
-//
-// void send_uint16_to_client(int client_socket, uint16_t value)
-//{
-//     uint16_t network_order = htons(value);
-//     send(client_socket, &network_order, sizeof(uint16_t), 0);
-// }
-//
-// ssize_t send_string_to_client(int client_socket, const char *str)
-//{
-//     size_t  length     = strlen(str);
-//     ssize_t total_sent = 0;
-//
-//     while((size_t)total_sent < length)
-//     {
-//         ssize_t sent = send(client_socket, str + total_sent, length -
-//         (size_t)total_sent, 0); if(sent == -1)
-//         {
-//             perror("send_string_to_client");
-//             return -1;    // Error occurred
-//         }
-//         if(sent == 0)
-//         {
-//             // Connection closed by client
-//             return total_sent;
-//         }
-//         total_sent += sent;
-//     }
-//     return total_sent;
-// }
-
 void send_message_to_client(int client_socket, uint8_t protocol_version,
                             const char *message) {
   uint16_t message_size = htons(strlen(message));
@@ -242,7 +203,6 @@ void *handle_client(void *arg) {
 
         // If recipient not found or offline, notify the sender
         if (recipient_index != -1) {
-          // Construct whisper message
           char whisper_message[BUFFER_SIZE];
           snprintf(whisper_message, BUFFER_SIZE, "Whisper from %s: %s\n",
                    usernames[client_index], message_content);
@@ -250,7 +210,6 @@ void *handle_client(void *arg) {
           // Send whisper message to recipient
           send_message_to_client(clients[recipient_index], 1, whisper_message);
         } else {
-          // Send error message to sender
           send_message_to_client(client_index, 1,
                                  "Recipient not found or offline.\n");
           printf("Recipient '%s' not found or offline. Whisper not sent.\n",
